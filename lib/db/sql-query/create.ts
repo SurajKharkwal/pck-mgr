@@ -1,20 +1,6 @@
 "use server";
 import { query } from "../connect-db";
 
-enum ROLE {
-  Manager = "Manager",
-  Worker = "Worker",
-}
-
-type userInfo = {
-  id: string;
-  name: string;
-  email: string;
-  role: ROLE;
-  phone: number;
-  image_url: string;
-}
-
 type table = "WORKER-pkm" | "USER-pkm" | "QR-CODE-pkm"
 
 export async function createTable(table: table) {
@@ -68,25 +54,3 @@ export async function createTable(table: table) {
   }
 }
 
-export async function createUser(data: userInfo) {
-  try {
-    const result = await query(`
-      INSERT INTO "user-pkm" (id, name, email, role, phone, image_url)
-      VALUES (${data.id}, ${data.name}, ${data.email}, ${data.role}, ${data.phone} , ${data.image_url})
-    `);
-    return result;
-  } catch (error) {
-    console.error("Error creating user:", error);
-    return `An error occurred while creating the user: ${error}`;
-  }
-}
-
-export async function deleteUser(id: string) {
-  try {
-    const result = await query(`DELETE FROM "user-pkm" WHERE id = ${id}`);
-    return result;
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    return `An error occurred while deleting the user: ${error}`;
-  }
-}
