@@ -1,7 +1,7 @@
 "use server";
-import { neon } from "@neondatabase/serverless";
+import { query } from "../connect-db";
 
-export enum ROLE {
+enum ROLE {
   Manager = "Manager",
   Worker = "Worker",
 }
@@ -15,48 +15,52 @@ type userInfo = {
   image_url: string;
 }
 
-export async function createTable(table: 'user-pkm' | 'worker-pkm') {
+type table = "WORKER-pkm" | "USER-pkm" | "QR-CODE-pkm"
 
+export async function createTable(table: table) {
   if (!process.env.DATABASE_URL) {
     console.error("Database URL is missing!");
     return "Database URL is missing in the environment variables.";
   }
 
-  const sql = neon(process.env.DATABASE_URL);
-
   try {
     const createTableQueries = {
-      'user-pkm': `
-        CREATE TABLE IF NOT EXISTS "user-pkm" (
+      'USER-pkm': `
+        CREATE TABLE IF NOT EXISTS "USER-pkm" (
           id VARCHAR(255) PRIMARY KEY,
           name VARCHAR(255),
           email VARCHAR(255) UNIQUE,
           role role_enum,
-          phone INT,
+          phone INT(10),
           image_url TEXT
         )
       `,
-      'worker-pkm': `
-        CREATE TABLE IF NOT EXISTS "worker-pkm" (
+      'WORKER-pkm': `
+        CREATE TABLE IF NOT EXISTS "WORKER-pkm" (
           id SERIAL PRIMARY KEY,
-          user_id VARCHAR(255) REFERENCES "user-pkm" (id) ON DELETE CASCADE,
-          date DATE,
-          pck_out_count INT, 
-          pck_int_count INT,
-          pck_out_arr TEXT[],  
-          pck_int_arr TEXT[]
+          user_id VARCHAR(255) REFERENCES "USER-pkm" (id) ON DELETE CASCADE,
+          "qr-code" VARCHAR(255) REFERENCES "QR-CODE-pkm" (code) ON DELETE CASCADE,
+          "qty-in" INT DEFAULT 0,
+          "qty-out" INT DEFAULT 0,
+          date DATE
         )
       `,
+      'QR-CODE-pkm': `
+        CREATE TABLE IF NOT EXISTS "QR-CODE-pkm" (
+          code VARCHAR(255) PRIMARY KEY,
+          name VARCHAR(255),
+          "pck-size" INT
+        )
+      `
     };
-
-    if (table === 'user-pkm') {
-      await sql(`
-        CREATE TYPE role_enum AS ENUM ('Manager', 'Worker');
-      `);
+    if (table === "USER-pkm") {
+      await query(`
+          CREATE TYPE role_enum AS ENUM ('Manager', 'Worker');
+        `);
     }
 
-    const result = await sql(createTableQueries[table]);
-    return result;
+    const result = await query(createTableQueries[table]);
+    return { message: `Table ${table} created successfully.`, result }; // Returning a more structured response
 
   } catch (error) {
     console.error("Error creating table:", error);
@@ -65,19 +69,11 @@ export async function createTable(table: 'user-pkm' | 'worker-pkm') {
 }
 
 export async function createUser(data: userInfo) {
-
-  if (!process.env.DATABASE_URL) {
-    console.error("Database URL is missing!");
-    return "Database URL is missing in the environment variables.";
-  }
-
-  const sql = neon(process.env.DATABASE_URL);
-
   try {
-    const result = await sql`
+    const result = await query(`
       INSERT INTO "user-pkm" (id, name, email, role, phone, image_url)
       VALUES (${data.id}, ${data.name}, ${data.email}, ${data.role}, ${data.phone} , ${data.image_url})
-    `;
+    `);
     return result;
   } catch (error) {
     console.error("Error creating user:", error);
@@ -86,18 +82,8 @@ export async function createUser(data: userInfo) {
 }
 
 export async function deleteUser(id: string) {
-
-  if (!process.env.DATABASE_URL) {
-    console.error("Database URL is missing!");
-    return "Database URL is missing in the environment variables.";
-  }
-
-  const sql = neon(process.env.DATABASE_URL);
-
   try {
-    const result = await sql`
-      DELETE FROM "user-pkm" WHERE id = ${id}
-    `;
+    const result = await query(`DELETE FROM "user-pkm" WHERE id = ${id}`);
     return result;
   } catch (error) {
     console.error("Error deleting user:", error);

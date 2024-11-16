@@ -1,7 +1,7 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import { createUser, deleteUser, ROLE } from '@/app/db/sql-query/create'
+import { createUser, deleteUser, } from '@/app/db/sql-query/create'
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
@@ -32,6 +32,10 @@ export async function POST(req: Request) {
     return new Response('Error occured', {
       status: 400,
     })
+  }
+  enum ROLE {
+    Manager = "Manager",
+    Worker = "Worker",
   }
 
   const { id } = evt.data
