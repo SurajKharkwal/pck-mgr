@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import QRCode from "./Qrcode";
-import { createQrCode } from "@/lib/db/sql-query/Insert";
+import { createQrCode } from "@/lib/actions/Manager/Qrcode";
 
 export default function CreateForm() {
   const [data, setData] = useState({ name: "", pckSize: 0 });
@@ -41,8 +41,8 @@ export default function CreateForm() {
 
     try {
       const result = await createQrCode(data);
-      if (result?.qrCode) {
-        setQrString(result.qrCode); // Update the QR code
+      if (result?.code) {
+        setQrString(result.code); // Update the QR code
       } else {
         setErrorMessage("Failed to create QR code. Please try again.");
       }

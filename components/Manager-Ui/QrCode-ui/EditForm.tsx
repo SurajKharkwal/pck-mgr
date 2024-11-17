@@ -12,8 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import QRCode from "./Qrcode"
 import { useState } from "react"
-import { getQrCode } from "@/lib/db/sql-query/select"
-import { updateQrCode } from "@/lib/db/sql-query/update"
+import { getQrCode, updateQrCode } from "@/lib/actions/Manager/Qrcode"
 
 export default function EditForm() {
   const [userQrCode, setUserQrCode] = useState("");
@@ -70,7 +69,7 @@ export default function EditForm() {
       if (qrCodeData && qrCodeData.name) {
         setData({
           name: qrCodeData.name,
-          pckSize: qrCodeData["pck-size"]
+          pckSize: qrCodeData.pckSize
         });
         setDbQrCode(userQrCode);
       } else {

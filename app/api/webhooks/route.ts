@@ -1,7 +1,7 @@
 import { Webhook } from 'svix'
 import { headers } from 'next/headers'
 import { WebhookEvent } from '@clerk/nextjs/server'
-import { createUser, deleteUser, } from '@/lib/db/sql-query/create'
+import { PrismaClient } from '@prisma/client';
 
 export async function POST(req: Request) {
   const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
@@ -33,19 +33,24 @@ export async function POST(req: Request) {
       status: 400,
     })
   }
-  enum ROLE {
-    Manager = "Manager",
-    Worker = "Worker",
+
+  const eventType = evt.type
+  const prisma = new PrismaClient()
+  if (eventType == "user.created") {
+    const { id, last_name, first_name, email_addresses, phone_numbers, image_url } = evt.data
+    await prisma.user.create({
+      data: {
+        id,
+        image_url,
+        name: `${first_name} ${last_name}`,
+        email: email_addresses[0].email_address,
+        phone: phone_numbers[0].phone_number
+      }
+    })
   }
 
-  const { id } = evt.data
-  const eventType = evt.type
-  if (eventType == "user.created") {
-    const { id, email_addresses, image_url, phone_numbers, first_name, last_name } = evt.data;
-    await createUser({ id: id, name: `${first_name} ${last_name}`, role: ROLE.Worker, email: email_addresses[0].email_address, phone: Number(phone_numbers[0].phone_number), image_url },)
-  }
   if (eventType == "user.deleted") {
-    await deleteUser(`${id}`)
+    await prisma.user.delete({ where: { id: evt.data.id } })
   }
-  return new Response('', { status: 200 })
+  return new Response('User Created Successfully', { status: 200 })
 }

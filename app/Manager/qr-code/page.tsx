@@ -1,8 +1,12 @@
 import CreateForm from "@/components/Manager-Ui/QrCode-ui/CreateForm"
 import EditForm from "@/components/Manager-Ui/QrCode-ui/EditForm"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { auth } from "@clerk/nextjs/server"
 
-export default function QRCODE() {
+export default async function QRCODE() {
+  const { userId } = await auth()
+  console.log(userId)
+
   return <div className="w-full h-full">
     <Tabs defaultValue="create" className="w-full h-full">
       <TabsList>
