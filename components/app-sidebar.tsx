@@ -31,8 +31,8 @@ const data = {
       isActive: true,
     },
     {
-      title: "Users",
-      url: "/Manager/User",
+      title: "Colleagues",
+      url: "/Manager/Colleagues",
       icon: Bot,
     },
     {
