@@ -59,7 +59,7 @@ export async function getUserEntriesToday() {
       },
     },
     _count: {
-      _all: true, // Count entries for each user
+      _all: true,
     },
   });
 
@@ -75,4 +75,14 @@ export async function getUserEntriesToday() {
     maxUserEntries,
     totalUserEntries,
   };
+
+}
+export async function fetchNotifications(pageCount: number) {
+  console.log(`Fetching page: ${pageCount}`);
+
+  return await prisma.notification.findMany({
+    skip: 10 * (pageCount - 1),
+    take: 10,
+    select: { title: true, description: true },
+  });
 }
