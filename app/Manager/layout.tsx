@@ -14,6 +14,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import { usePathname } from "next/navigation"
 
 
 
@@ -22,6 +23,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathName = usePathname()
   return (
 
     <SidebarProvider>
@@ -34,13 +36,13 @@ export default function RootLayout({
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
+                  <BreadcrumbLink>
                     Package Manager
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className="hidden md:block" />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>DashBoard</BreadcrumbPage>
+                  <BreadcrumbPage>{pathName.split("/").pop()}</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>

@@ -5,11 +5,10 @@ import {
   BadgeCheck,
   Bell,
   ChevronsUpDown,
-  GithubIcon,
+  CreditCard,
   LogOut,
   Sparkles,
 } from "lucide-react"
-
 import {
   Avatar,
   AvatarFallback,
@@ -72,7 +71,7 @@ export function NavUser({
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="rounded-lg">CN</AvatarFallback>
+                  <AvatarFallback className="rounded-lg">{user.name.slice(1, 3)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>
@@ -84,20 +83,18 @@ export function NavUser({
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <Sparkles />
-                Buy Me a coffee
+                Upgrade to Pro
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <GithubIcon />
-                Github
-              </DropdownMenuItem>
-
-
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
                 <BadgeCheck />
                 Account
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <CreditCard />
+                Billing
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Bell />

@@ -1,7 +1,8 @@
-"use client"
 
-import { TrendingUp } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis } from "recharts"
+"use client";
+
+import { TrendingUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis } from "recharts";
 
 import {
   Card,
@@ -10,31 +11,30 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
+} from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@/components/ui/chart"
+} from "@/components/ui/chart";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--chart-1))",
+  pckIn: {
+    label: "Package In",
+    color: "#4caf50", // Color for Package In
   },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--chart-2))",
+  pckOut: {
+    label: "Package Out",
+    color: "#ff9800", // Color for Package Out
   },
-} satisfies ChartConfig
-
+} satisfies ChartConfig;
 
 type Props = {
-  date: Date;
-  qtyIn: number;
-  qtyOut: number;
-}
+  date: Date; // ISO string
+  pckIn: number;
+  pckOut: number;
+};
 
 export default function ChartComponent({ chartData }: { chartData: Props[] }) {
   return (
@@ -49,7 +49,6 @@ export default function ChartComponent({ chartData }: { chartData: Props[] }) {
         <ResponsiveContainer width={"100%"} height={350}>
           <ChartContainer config={chartConfig}>
             <AreaChart
-              accessibilityLayer
               data={chartData}
               margin={{
                 left: 12,
@@ -58,53 +57,55 @@ export default function ChartComponent({ chartData }: { chartData: Props[] }) {
             >
               <CartesianGrid vertical={false} />
               <XAxis
-                dataKey="month"
+                dataKey="date"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={(value) =>
+                  new Date(value).toLocaleDateString('default', { weekday: 'short' })
+                }
               />
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               <defs>
-                <linearGradient id="fillDesktop" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillPckIn" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor="var(--color-desktop)"
+                    stopColor={chartConfig.pckIn.color}
                     stopOpacity={0.8}
                   />
                   <stop
                     offset="95%"
-                    stopColor="var(--color-desktop)"
+                    stopColor={chartConfig.pckIn.color}
                     stopOpacity={0.1}
                   />
                 </linearGradient>
-                <linearGradient id="fillMobile" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="fillPckOut" x1="0" y1="0" x2="0" y2="1">
                   <stop
                     offset="5%"
-                    stopColor="var(--color-mobile)"
+                    stopColor={chartConfig.pckOut.color}
                     stopOpacity={0.8}
                   />
                   <stop
                     offset="95%"
-                    stopColor="var(--color-mobile)"
+                    stopColor={chartConfig.pckOut.color}
                     stopOpacity={0.1}
                   />
                 </linearGradient>
               </defs>
               <Area
-                dataKey="mobile"
+                dataKey="pckIn"
                 type="natural"
-                fill="url(#fillMobile)"
+                fill="url(#fillPckIn)"
                 fillOpacity={0.4}
-                stroke="var(--color-mobile)"
+                stroke={chartConfig.pckIn.color}
                 stackId="a"
               />
               <Area
-                dataKey="desktop"
+                dataKey="pckOut"
                 type="natural"
-                fill="url(#fillDesktop)"
+                fill="url(#fillPckOut)"
                 fillOpacity={0.4}
-                stroke="var(--color-desktop)"
+                stroke={chartConfig.pckOut.color}
                 stackId="a"
               />
             </AreaChart>
@@ -120,10 +121,25 @@ export default function ChartComponent({ chartData }: { chartData: Props[] }) {
             <div className="flex items-center gap-2 leading-none text-muted-foreground">
               January - June 2024
             </div>
+            <div className="flex gap-4 mt-2">
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-4 h-4"
+                  style={{ backgroundColor: chartConfig.pckIn.color }}
+                ></div>
+                <span>{chartConfig.pckIn.label}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-4 h-4"
+                  style={{ backgroundColor: chartConfig.pckOut.color }}
+                ></div>
+                <span>{chartConfig.pckOut.label}</span>
+              </div>
+            </div>
           </div>
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
-

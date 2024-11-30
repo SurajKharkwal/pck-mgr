@@ -1,6 +1,7 @@
 
 "use server"
 
+import { auth } from "@clerk/nextjs/server";
 import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
@@ -8,18 +9,28 @@ const prisma = new PrismaClient()
 export async function chartData() {
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-  return await prisma.entry.findMany({
+
+  const data = await prisma.entry.groupBy({
+    by: ['date'],
     where: {
       date: {
         gte: sevenDaysAgo,
-      }
+      },
     },
-    select: {
-      date: true,
-      qtyIn: true,
-      qtyOut: true,
-    }
-  })
+    _sum: {
+      pckIn: true,
+      pckOut: true,
+    },
+    orderBy: {
+      date: 'asc', // Ensure results are ordered by date
+    },
+  });
+
+  return data.map((entry) => ({
+    date: entry.date,
+    pckIn: entry._sum.pckIn || 0,
+    pckOut: entry._sum.pckOut || 0,
+  }));
 }
 
 
@@ -29,14 +40,14 @@ export async function pckCard() {
       date: new Date(),
     },
     select: {
-      qtyIn: true,
-      qtyOut: true,
+      pckIn: true,
+      pckOut: true,
     },
   });
 
   const sum = (arr: number[]) => arr.reduce((total, num) => total + num, 0);
-  const pckIn = sum(pck.map(entry => entry.qtyIn || 0));
-  const pckOut = sum(pck.map(entry => entry.qtyOut || 0));
+  const pckIn = sum(pck.map(entry => entry.pckIn || 0));
+  const pckOut = sum(pck.map(entry => entry.pckOut || 0));
 
   return { pckIn, pckOut };
 }
@@ -78,11 +89,23 @@ export async function getUserEntriesToday() {
 
 }
 export async function fetchNotifications(pageCount: number) {
-  console.log(`Fetching page: ${pageCount}`);
-
   return await prisma.notification.findMany({
     skip: 10 * (pageCount - 1),
     take: 10,
     select: { title: true, description: true },
   });
+}
+
+export async function userInfo() {
+  const { userId } = await auth()
+  return await prisma.user.findUnique({
+    where: {
+      id: userId || ""
+    },
+    select: {
+      name: true,
+      email: true,
+      image_url: true
+    }
+  })
 }

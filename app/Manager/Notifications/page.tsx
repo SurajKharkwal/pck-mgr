@@ -27,7 +27,7 @@ export default function Notifications() {
   }, [hasMore]);
 
   return (
-    <div>
+    <div className='flex gap-4 w-full h-full items-center justify-center flex-col'>
       {data.map((item) => (
         NotificatonCard(item)
       ))}
